@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------
+   Base Styles
+-------------------------- */
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased;
+  }
+
+  h1 {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  h3 {
+    @apply text-xl font-semibold;
+  }
+
+  p {
+    @apply text-slate-600 leading-relaxed;
+  }
+
+  a {
+    @apply text-blue-600 hover:underline;
+  }
+}
+
+/* -------------------------
+   Reusable Components
+-------------------------- */
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition;
+  }
+
+  .btn-primary {
+    @apply btn bg-blue-600 text-white hover:bg-blue-700;
+  }
+
+  .btn-secondary {
+    @apply btn bg-slate-200 text-slate-800 hover:bg-slate-300;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700;
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm
+           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  /* Cards */
+  .card {
+    @apply rounded-xl border border-slate-200 bg-white p-6 shadow-sm;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-green-100 text-green-700;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-100 text-yellow-700;
+  }
+
+  .badge-danger {
+    @apply badge bg-red-100 text-red-700;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    @apply h-screen w-64 border-r bg-white p-4;
+  }
+
+  .sidebar-link {
+    @apply block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100;
+  }
+
+  .sidebar-link-active {
+    @apply bg-blue-50 text-blue-700;
+  }
+}
+
+/* -------------------------
+   Utility Extras
+-------------------------- */
+@layer utilities {
+  .page-container {
+    @apply mx-auto max-w-7xl px-4;
+  }
+
+  .dashboard-title {
+    @apply mb-6 text-2xl font-semibold;
+  }
+}
