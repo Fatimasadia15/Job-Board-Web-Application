@@ -29,39 +29,67 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // FIX 1: getUser() ko try-catch mein wrap karo
+  let user = null
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (!error) {
+      user = data.user
+    }
+  } catch (e) {
+    console.error('Auth error:', e)
+  }
 
   let userRole = null
+
   if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, status')
-      .eq('id', user.id)
-      .single()
+    // FIX 2: Profile fetch bhi try-catch mein
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, status')
+        .eq('id', user.id)
+        .single()
 
-    if (profile?.status === 'blocked') {
-      return NextResponse.redirect(new URL('/auth/blocked', request.url))
+      if (profile?.status === 'blocked') {
+        return NextResponse.redirect(new URL('/auth/blocked', request.url))
+      }
+
+      userRole = profile?.role ?? null
+    } catch (e) {
+      console.error('Profile fetch error:', e)
     }
-
-    userRole = profile?.role
   }
 
   const path = request.nextUrl.pathname
 
-  const publicRoutes = ['/', '/auth/login', '/auth/signup', '/auth/blocked', '/jobs']
-  const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith('/jobs/'))
+  // FIX 3: /auth/callback ko public routes mein add karo (Supabase OAuth ke liye zaroori)
+  const publicRoutes = [
+    '/',
+    '/auth/login',
+    '/auth/signup',
+    '/auth/blocked',
+    '/auth/callback',
+    '/jobs',
+  ]
+
+  const isPublicRoute =
+    publicRoutes.some((route) => path === route) ||
+    path.startsWith('/jobs/')
 
   if (!user && !isPublicRoute) {
-    return NextResponse.redirect(new URL('/auth/login', request.url))
+    const redirectUrl = new URL('/auth/login', request.url)
+    // FIX 4: Return URL save karo taake login ke baad wapas aa sake
+    redirectUrl.searchParams.set('redirectTo', path)
+    return NextResponse.redirect(redirectUrl)
   }
 
   if (user && (path === '/auth/login' || path === '/auth/signup')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  if (user && userRole) {
+  // FIX 5: userRole check ko user check se alag karo
+  if (user && path.startsWith('/dashboard')) {
     if (path.startsWith('/dashboard/admin') && userRole !== 'admin') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
@@ -70,7 +98,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
-    if (path.startsWith('/dashboard/job-seeker') && userRole !== 'job_seeker') {
+    if (
+      path.startsWith('/dashboard/job-seeker') &&
+      userRole !== 'job_seeker'
+    ) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
